@@ -8,12 +8,12 @@ import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { PrimaryButton } from "./Components/PrimaryButton";
 import parsePhoneNumberFromString from "libphonenumber-js";
+import { useData } from "./DataContext";
 
 const schema = yup.object().shape({
   email: yup
     .string()
     .email("Email should have correct format")
-
     .required("Email is a required field"),
 });
 
@@ -23,6 +23,7 @@ const normalizePhoneNumber = (value) => {
 };
 
 export const SecondStep = () => {
+  const { setValues, data } = useData();
   const navigate = useNavigate();
   const {
     register,
@@ -30,12 +31,20 @@ export const SecondStep = () => {
     formState: { errors },
     watch,
   } = useForm({
+    defaultValues: {
+      email: data.email,
+      hasPhone: data.hasPhone,
+      phoneNumber: data.phoneNumber,
+    },
     mode: "onBlur",
     resolver: yupResolver(schema),
   });
   const hasPhone = watch("hasPhone");
 
-  const onSubmit = () => navigate("/step3");
+  const onSubmit = (data) => {
+    setValues(data);
+    navigate("/step3");
+  };
   return (
     <MainContainer>
       <Typography component="h2" variant="h5">
